@@ -9,7 +9,7 @@ local CREATOR_NAME = "dark sistem"
 local CREATOR_USERNAME = "bijisalakbulat"
 local CREATOR_USERID = 154739733
 local CREATOR_PROFILE_LINK = "https://www.roblox.com/users/"..CREATOR_USERID.."/profile"
-local BUG_REPORT_LINK = "https://chat.whatsapp.com/YourGroupLinkHere" -- Ganti dengan grup WhatsApp resmi
+local BUG_REPORT_LINK = "https://chat.whatsapp.com/FV0MoulxZ6SEeppU8qKmMh?mode=ac_t" -- Ganti dengan grup WhatsApp resmi
 
 -- Variables
 local currentPage = 1
