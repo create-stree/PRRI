@@ -3,12 +3,19 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
+-- Wait for LocalPlayer
+local player = Players.LocalPlayer
+while not player do
+    Players.PlayerAdded:Wait()
+    player = Players.LocalPlayer
+end
+
 -- Constants
 local API_URL = "https://scriptblox.com/api/script/fetch"
 local CREATOR_NAME = "dark sistem"
 local CREATOR_USERNAME = "bijisalakbulat"
 local CREATOR_USERID = 154739733
-local CREATOR_PROFILE_LINK = "https://www.roblox.com/users/"154739733"/profile"
+local CREATOR_PROFILE_LINK = "https://www.roblox.com/users/" .. CREATOR_USERID .. "/profile"
 local BUG_REPORT_LINK = "https://chat.whatsapp.com/FV0MoulxZ6SEeppU8qKmMh?mode=ac_t" -- Ganti dengan grup WhatsApp resmi
 
 -- Variables
@@ -20,14 +27,15 @@ local totalPages = 1
 -- Helper Functions
 
 local function createNotification(message)
-    local screenGui = Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ScriptNotifGui")
+    local playerGui = player:WaitForChild("PlayerGui")
+    local screenGui = playerGui:FindFirstChild("ScriptNotifGui")
     if not screenGui then
         screenGui = Instance.new("ScreenGui")
         screenGui.Name = "ScriptNotifGui"
-        screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+        screenGui.Parent = playerGui
         screenGui.ResetOnSpawn = false
     end
-    
+
     local notifFrame = Instance.new("Frame")
     notifFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
     notifFrame.BackgroundTransparency = 0.3
@@ -36,7 +44,7 @@ local function createNotification(message)
     notifFrame.AnchorPoint = Vector2.new(0.5,0)
     notifFrame.ZIndex = 10
     notifFrame.Parent = screenGui
-    
+
     local notifText = Instance.new("TextLabel")
     notifText.Size = UDim2.new(1, -20, 1, 0)
     notifText.Position = UDim2.new(0, 10, 0, 0)
@@ -46,7 +54,7 @@ local function createNotification(message)
     notifText.TextSize = 18
     notifText.Text = message
     notifText.Parent = notifFrame
-    
+
     delay(3, function()
         notifFrame:Destroy()
     end)
@@ -62,13 +70,13 @@ end
 local function makeDraggable(frame)
     local dragging = false
     local dragInput, dragStart, startPos
-    
+
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = frame.Position
-            
+
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -76,13 +84,13 @@ local function makeDraggable(frame)
             end)
         end
     end)
-    
+
     frame.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
@@ -98,7 +106,7 @@ end
 
 -- Build Main GUI
 
-local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local playerGui = player:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ScriptSearchGUI"
 screenGui.ResetOnSpawn = false
@@ -185,312 +193,312 @@ end)
 -- Pagination Buttons
 local paginationFrame = Instance.new("Frame")
 paginationFrame.Size = UDim2.new(1, -30, 0, 40)
-paginationFrame.Position = UDim2.new(0, 15, 0, 440)
+paginationFrame.Position = UDim2.new(0, 15, 1, -60)
 paginationFrame.BackgroundTransparency = 1
 paginationFrame.Parent = mainFrame
 
-local prevPageBtn = Instance.new("TextButton")
-prevPageBtn.Text = "< Previous"
-prevPageBtn.Font = Enum.Font.GothamBold
-prevPageBtn.TextSize = 18
-prevPageBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
-prevPageBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-prevPageBtn.BorderSizePixel = 0
-prevPageBtn.Size = UDim2.new(0.48, 0, 1, 0)
-prevPageBtn.Position = UDim2.new(0, 0, 0, 0)
-prevPageBtn.Parent = paginationFrame
+local prevBtn = Instance.new("TextButton")
+prevBtn.Text = "< Prev"
+prevBtn.Font = Enum.Font.GothamBold
+prevBtn.TextSize = 16
+prevBtn.TextColor3 = Color3.new(1, 1, 1)
+prevBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+prevBtn.BorderSizePixel = 0
+prevBtn.Size = UDim2.new(0.2, 0, 1, 0)
+prevBtn.Position = UDim2.new(0, 0, 0, 0)
+prevBtn.Parent = paginationFrame
 
-local nextPageBtn = Instance.new("TextButton")
-nextPageBtn.Text = "Next >"
-nextPageBtn.Font = Enum.Font.GothamBold
-nextPageBtn.TextSize = 18
-nextPageBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-nextPageBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-nextPageBtn.BorderSizePixel = 0
-nextPageBtn.Size = UDim2.new(0.48, 0, 1, 0)
-nextPageBtn.Position = UDim2.new(0.52, 0, 0, 0)
-nextPageBtn.Parent = paginationFrame
+local pageLabel = Instance.new("TextLabel")
+pageLabel.Text = "Page 1 / 1"
+pageLabel.Font = Enum.Font.GothamBold
+pageLabel.TextSize = 18
+pageLabel.TextColor3 = Color3.new(1, 1, 1)
+pageLabel.BackgroundTransparency = 1
+pageLabel.Size = UDim2.new(0.6, 0, 1, 0)
+pageLabel.Position = UDim2.new(0.25, 0, 0, 0)
+pageLabel.Parent = paginationFrame
 
--- Script Detail Panel (Right side)
-local detailPanel = Instance.new("Frame")
-detailPanel.Size = UDim2.new(0, 280, 1, 0)
-detailPanel.Position = UDim2.new(1, 10, 0, 0)
-detailPanel.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-detailPanel.BorderSizePixel = 0
-detailPanel.Parent = mainFrame
+local nextBtn = Instance.new("TextButton")
+nextBtn.Text = "Next >"
+nextBtn.Font = Enum.Font.GothamBold
+nextBtn.TextSize = 16
+nextBtn.TextColor3 = Color3.new(1, 1, 1)
+nextBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+nextBtn.BorderSizePixel = 0
+nextBtn.Size = UDim2.new(0.2, 0, 1, 0)
+nextBtn.Position = UDim2.new(0.85, 0, 0, 0)
+nextBtn.Parent = paginationFrame
 
--- Detail Title
+-- Detail Frame (Hidden by default)
+local detailFrame = Instance.new("Frame")
+detailFrame.Name = "DetailFrame"
+detailFrame.Size = UDim2.new(0, 580, 0, 400)
+detailFrame.Position = UDim2.new(0.5, -290, 0.3, 50)
+detailFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+detailFrame.BorderSizePixel = 0
+detailFrame.Visible = false
+detailFrame.Parent = screenGui
+makeDraggable(detailFrame)
+
 local detailTitle = Instance.new("TextLabel")
-detailTitle.Size = UDim2.new(1, -20, 0, 40)
-detailTitle.Position = UDim2.new(0, 10, 0, 10)
-detailTitle.BackgroundTransparency = 1
+detailTitle.Text = ""
 detailTitle.Font = Enum.Font.GothamBold
-detailTitle.TextSize = 20
+detailTitle.TextSize = 22
 detailTitle.TextColor3 = Color3.new(1, 1, 1)
-detailTitle.Text = "Select a script to see details"
-detailTitle.TextWrapped = true
+detailTitle.BackgroundTransparency = 1
+detailTitle.Size = UDim2.new(1, -40, 0, 35)
+detailTitle.Position = UDim2.new(0, 20, 0, 15)
 detailTitle.TextXAlignment = Enum.TextXAlignment.Left
-detailTitle.Parent = detailPanel
+detailTitle.Parent = detailFrame
 
--- Script image
-local scriptImage = Instance.new("ImageLabel")
-scriptImage.Size = UDim2.new(1, -20, 0, 120)
-scriptImage.Position = UDim2.new(0, 10, 0, 55)
-scriptImage.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-scriptImage.BorderSizePixel = 0
-scriptImage.ScaleType = Enum.ScaleType.Fit
-scriptImage.Parent = detailPanel
+local detailDescription = Instance.new("TextLabel")
+detailDescription.Text = ""
+detailDescription.Font = Enum.Font.Gotham
+detailDescription.TextSize = 16
+detailDescription.TextColor3 = Color3.new(1, 1, 1)
+detailDescription.BackgroundTransparency = 1
+detailDescription.Size = UDim2.new(1, -40, 0, 120)
+detailDescription.Position = UDim2.new(0, 20, 0, 60)
+detailDescription.TextWrapped = true
+detailDescription.TextYAlignment = Enum.TextYAlignment.Top
+detailDescription.TextXAlignment = Enum.TextXAlignment.Left
+detailDescription.Parent = detailFrame
 
--- Script info text
-local scriptInfo = Instance.new("TextLabel")
-scriptInfo.Size = UDim2.new(1, -20, 0, 150)
-scriptInfo.Position = UDim2.new(0, 10, 0, 180)
-scriptInfo.BackgroundTransparency = 1
-scriptInfo.Font = Enum.Font.Gotham
-scriptInfo.TextSize = 16
-scriptInfo.TextColor3 = Color3.new(1, 1, 1)
-scriptInfo.TextWrapped = true
-scriptInfo.TextXAlignment = Enum.TextXAlignment.Left
-scriptInfo.TextYAlignment = Enum.TextYAlignment.Top
-scriptInfo.Parent = detailPanel
+local detailScriptBox = Instance.new("TextBox")
+detailScriptBox.Text = ""
+detailScriptBox.Font = Enum.Font.Code
+detailScriptBox.TextSize = 14
+detailScriptBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+detailScriptBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+detailScriptBox.ClearTextOnFocus = false
+detailScriptBox.MultiLine = true
+detailScriptBox.Size = UDim2.new(1, -40, 0, 190)
+detailScriptBox.Position = UDim2.new(0, 20, 0, 190)
+detailScriptBox.TextWrapped = true
+detailScriptBox.Parent = detailFrame
 
--- Copy Script Button
+local closeDetailBtn = Instance.new("TextButton")
+closeDetailBtn.Text = "Close"
+closeDetailBtn.Font = Enum.Font.GothamBold
+closeDetailBtn.TextSize = 18
+closeDetailBtn.TextColor3 = Color3.new(1, 1, 1)
+closeDetailBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+closeDetailBtn.BorderSizePixel = 0
+closeDetailBtn.Size = UDim2.new(0, 80, 0, 35)
+closeDetailBtn.Position = UDim2.new(1, -90, 0, 15)
+closeDetailBtn.Parent = detailFrame
+
 local copyScriptBtn = Instance.new("TextButton")
 copyScriptBtn.Text = "Copy Script"
 copyScriptBtn.Font = Enum.Font.GothamBold
-copyScriptBtn.TextSize = 18
-copyScriptBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
+copyScriptBtn.TextSize = 16
 copyScriptBtn.TextColor3 = Color3.new(1, 1, 1)
+copyScriptBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
 copyScriptBtn.BorderSizePixel = 0
-copyScriptBtn.Size = UDim2.new(1, -20, 0, 40)
-copyScriptBtn.Position = UDim2.new(0, 10, 1, -50)
-copyScriptBtn.Parent = detailPanel
+copyScriptBtn.Size = UDim2.new(0, 110, 0, 35)
+copyScriptBtn.Position = UDim2.new(1, -210, 0, 15)
+copyScriptBtn.Parent = detailFrame
 
--- Follow Creator Panel (bottom)
-local followPanel = Instance.new("Frame")
-followPanel.Size = UDim2.new(1, -20, 0, 60)
-followPanel.Position = UDim2.new(0, 10, 1, -110)
-followPanel.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-followPanel.BorderSizePixel = 0
-followPanel.Parent = detailPanel
+local openCreatorProfileBtn = Instance.new("TextButton")
+openCreatorProfileBtn.Text = "Creator Profile"
+openCreatorProfileBtn.Font = Enum.Font.GothamBold
+openCreatorProfileBtn.TextSize = 16
+openCreatorProfileBtn.TextColor3 = Color3.new(1, 1, 1)
+openCreatorProfileBtn.BackgroundColor3 = Color3.fromRGB(0, 70, 150)
+openCreatorProfileBtn.BorderSizePixel = 0
+openCreatorProfileBtn.Size = UDim2.new(0, 130, 0, 35)
+openCreatorProfileBtn.Position = UDim2.new(0, 20, 1, -50)
+openCreatorProfileBtn.Parent = detailFrame
 
-local creatorImg = Instance.new("ImageLabel")
-creatorImg.Size = UDim2.new(0, 40, 0, 40)
-creatorImg.Position = UDim2.new(0, 10, 0, 10)
-creatorImg.BackgroundTransparency = 1
-creatorImg.Image = "rbxthumb://type=AvatarHeadShot&id=154739733&w=420&h=420"
-creatorImg.Parent = followPanel
+local reportBugBtn = Instance.new("TextButton")
+reportBugBtn.Text = "Report Bug"
+reportBugBtn.Font = Enum.Font.GothamBold
+reportBugBtn.TextSize = 16
+reportBugBtn.TextColor3 = Color3.new(1, 1, 1)
+reportBugBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 0)
+reportBugBtn.BorderSizePixel = 0
+reportBugBtn.Size = UDim2.new(0, 130, 0, 35)
+reportBugBtn.Position = UDim2.new(1, -150, 1, -50)
+reportBugBtn.Parent = detailFrame
 
-local creatorNameLabel = Instance.new("TextLabel")
-creatorNameLabel.Size = UDim2.new(0, 160, 0, 40)
-creatorNameLabel.Position = UDim2.new(0, 60, 0, 10)
-creatorNameLabel.BackgroundTransparency = 1
-creatorNameLabel.Font = Enum.Font.GothamBold
-creatorNameLabel.TextSize = 18
-creatorNameLabel.TextColor3 = Color3.new(1,1,1)
-creatorNameLabel.Text = Dark sistem" | "Bijisalakbulat 
-creatorNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-creatorNameLabel.Parent = followPanel
-
-local followBtn = Instance.new("TextButton")
-followBtn.Size = UDim2.new(0, 80, 0, 40)
-followBtn.Position = UDim2.new(1, -90, 0, 10)
-followBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-followBtn.Font = Enum.Font.GothamBold
-followBtn.TextSize = 18
-followBtn.TextColor3 = Color3.new(1, 1, 1)
-followBtn.Text = "Follow"
-followBtn.BorderSizePixel = 0
-followBtn.Parent = followPanel
-
--- Credit label bottom left
-local creditLabel = Instance.new("TextLabel")
-creditLabel.Text = "| coded by : dark sistem |"
-creditLabel.Font = Enum.Font.GothamItalic
-creditLabel.TextSize = 14
-creditLabel.TextColor3 = Color3.fromRGB(180,180,180)
-creditLabel.BackgroundTransparency = 1
-creditLabel.Position = UDim2.new(0, 5, 1, -20)
-creditLabel.Size = UDim2.new(0, 200, 0, 20)
-creditLabel.Parent = mainFrame
-
--- Bug Report Button bottom right
-local bugReportBtn = Instance.new("TextButton")
-bugReportBtn.Text = "Report Bug"
-bugReportBtn.Font = Enum.Font.GothamBold
-bugReportBtn.TextSize = 14
-bugReportBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-bugReportBtn.TextColor3 = Color3.new(1,1,1)
-bugReportBtn.BorderSizePixel = 0
-bugReportBtn.Size = UDim2.new(0, 100, 0, 30)
-bugReportBtn.Position = UDim2.new(1, -110, 1, -40)
-bugReportBtn.Parent = mainFrame
-
--- Floating button when GUI closed
-local floatingBtn = Instance.new("TextButton")
-floatingBtn.Text = "Scripts"
-floatingBtn.Font = Enum.Font.GothamBold
-floatingBtn.TextSize = 16
-floatingBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-floatingBtn.TextColor3 = Color3.new(1,1,1)
-floatingBtn.BorderSizePixel = 0
-floatingBtn.Size = UDim2.new(0, 80, 0, 40)
-floatingBtn.Position = UDim2.new(0, 10, 0.5, -20)
-floatingBtn.Parent = screenGui
-floatingBtn.Visible = false
-makeDraggable(floatingBtn)
-
--- Functions for GUI
-
-local currentScripts = {}
-local selectedScript = nil
+-- Functions to render scripts
 
 local function clearResults()
     for _, child in ipairs(resultsFrame:GetChildren()) do
-        if child:IsA("TextButton") then
+        if child:IsA("Frame") then
             child:Destroy()
         end
     end
 end
 
-local function updatePaginationButtons()
-    prevPageBtn.Active = currentPage > 1
-    prevPageBtn.TextColor3 = currentPage > 1 and Color3.new(1,1,1) or Color3.fromRGB(120,120,120)
-    nextPageBtn.Active = currentPage < totalPages
-    nextPageBtn.TextColor3 = currentPage < totalPages and Color3.new(1,1,1) or Color3.fromRGB(120,120,120)
-end
+local function createScriptEntry(scriptData)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 90)
+    frame.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    frame.BorderSizePixel = 0
 
-local function updateDetailPanel(script)
-    selectedScript = script
-    detailTitle.Text = script.title or "No Title"
-    scriptImage.Image = script.image or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-    local verifiedText = script.verified and "Yes" or "No"
-    local keyText = script.key and "Yes" or "No"
-    local infoText = 
-        ("Game: %s\nViews: %d\nVerified: %s\nKey system: %s\nType: %s\nCreated at: %s\n\nScript:\n%s"):format(
-        script.game.name or "Unknown",
-        script.views or 0,
-        verifiedText,
-        keyText,
-        script.scriptType or "Unknown",
-        script.createdAt or "Unknown",
-        script.script or "[No script text]"
-    )
-    scriptInfo.Text = infoText
-end
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Text = scriptData.name or "Unknown Script"
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextSize = 18
+    titleLabel.TextColor3 = Color3.new(1, 1, 1)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Size = UDim2.new(1, -100, 0, 25)
+    titleLabel.Position = UDim2.new(0, 10, 0, 5)
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = frame
 
-local function onScriptButtonClick(script)
-    updateDetailPanel(script)
-end
+    local creatorLabel = Instance.new("TextLabel")
+    creatorLabel.Text = "By: " .. (scriptData.creator or "Unknown")
+    creatorLabel.Font = Enum.Font.Gotham
+    creatorLabel.TextSize = 14
+    creatorLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    creatorLabel.BackgroundTransparency = 1
+    creatorLabel.Size = UDim2.new(1, -100, 0, 20)
+    creatorLabel.Position = UDim2.new(0, 10, 0, 35)
+    creatorLabel.TextXAlignment = Enum.TextXAlignment.Left
+    creatorLabel.Parent = frame
 
-local function renderScripts(scripts)
-    clearResults()
-    currentScripts = scripts
-    for i, scr in ipairs(scripts) do
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, 0, 0, 50)
-        btn.BackgroundColor3 = Color3.fromRGB(55, 55, 70)
-        btn.BorderSizePixel = 0
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 18
-        btn.TextColor3 = Color3.new(1,1,1)
-        btn.Text = scr.title or "No Title"
-        btn.Parent = resultsFrame
-        btn.MouseButton1Click:Connect(function()
-            onScriptButtonClick(scr)
-        end)
-    end
-end
+    local copyBtn = Instance.new("TextButton")
+    copyBtn.Text = "Copy Script"
+    copyBtn.Font = Enum.Font.GothamBold
+    copyBtn.TextSize = 14
+    copyBtn.TextColor3 = Color3.new(1, 1, 1)
+    copyBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    copyBtn.BorderSizePixel = 0
+    copyBtn.Size = UDim2.new(0, 90, 0, 25)
+    copyBtn.Position = UDim2.new(1, -100, 1, -30)
+    copyBtn.Parent = frame
 
-local function fetchAndRender()
-    local url = API_URL .. "?page=" .. currentPage .. "&max=" .. maxPerPage
-    if currentSearch ~= "" then
-        url = url .. "&q=" .. HttpService:UrlEncode(currentSearch)
-    end
-    local success, response = pcall(function()
-        return HttpService:GetAsync(url)
+    local detailsBtn = Instance.new("TextButton")
+    detailsBtn.Text = "Details"
+    detailsBtn.Font = Enum.Font.GothamBold
+    detailsBtn.TextSize = 14
+    detailsBtn.TextColor3 = Color3.new(1, 1, 1)
+    detailsBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    detailsBtn.BorderSizePixel = 0
+    detailsBtn.Size = UDim2.new(0, 90, 0, 25)
+    detailsBtn.Position = UDim2.new(1, -200, 1, -30)
+    detailsBtn.Parent = frame
+
+    -- Click events
+    copyBtn.MouseButton1Click:Connect(function()
+        setClipboard(scriptData.script or "")
+        createNotification("Script copied to clipboard!")
     end)
-    if success then
-        local data = HttpService:JSONDecode(response)
-        if data and data.result then
-            totalPages = data.result.totalPages or 1
-            updatePaginationButtons()
-            renderScripts(data.result.scripts or {})
-        else
-            createNotification("No results found.")
-            clearResults()
-        end
-    else
-        createNotification("Failed to fetch data from API.")
-    end
+
+    detailsBtn.MouseButton1Click:Connect(function()
+        detailTitle.Text = scriptData.name or "No Name"
+        detailDescription.Text = scriptData.description or "No Description"
+        detailScriptBox.Text = scriptData.script or ""
+        detailFrame.Visible = true
+    end)
+
+    return frame
 end
 
--- Button Events
+-- Fetch scripts from API
+local function fetchScripts(search, page)
+    local url = API_URL .. "?search=" .. HttpService:UrlEncode(search) .. "&page=" .. tostring(page) .. "&limit=" .. tostring(maxPerPage)
+    local success, response = pcall(function()
+        return game:HttpGet(url)
+    end)
+
+    if success and response then
+        local data = HttpService:JSONDecode(response)
+        if data and data.scripts then
+            return data.scripts, data.total or 0
+        end
+    end
+
+    return {}, 0
+end
+
+-- Render scripts list
+local function renderScripts()
+    clearResults()
+
+    local scripts, totalCount = fetchScripts(currentSearch, currentPage)
+    if not scripts or #scripts == 0 then
+        local emptyLabel = Instance.new("TextLabel")
+        emptyLabel.Text = "No scripts found."
+        emptyLabel.Font = Enum.Font.Gotham
+        emptyLabel.TextSize = 18
+        emptyLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        emptyLabel.BackgroundTransparency = 1
+        emptyLabel.Size = UDim2.new(1, 0, 0, 30)
+        emptyLabel.Position = UDim2.new(0, 0, 0, 10)
+        emptyLabel.Parent = resultsFrame
+        totalPages = 1
+        pageLabel.Text = "Page 1 / 1"
+        return
+    end
+
+    for _, scriptData in ipairs(scripts) do
+        local entry = createScriptEntry(scriptData)
+        entry.Parent = resultsFrame
+    end
+
+    totalPages = math.max(1, math.ceil(totalCount / maxPerPage))
+    pageLabel.Text = "Page " .. currentPage .. " / " .. totalPages
+end
+
+-- Button Connections
+
 searchBtn.MouseButton1Click:Connect(function()
     currentSearch = searchBox.Text or ""
     currentPage = 1
-    fetchAndRender
+    renderScripts()
 end)
 
-prevPageBtn.MouseButton1Click:Connect(function()
+prevBtn.MouseButton1Click:Connect(function()
     if currentPage > 1 then
         currentPage = currentPage - 1
-        fetchAndRender()
+        renderScripts()
     end
 end)
 
-nextPageBtn.MouseButton1Click:Connect(function()
+nextBtn.MouseButton1Click:Connect(function()
     if currentPage < totalPages then
         currentPage = currentPage + 1
-        fetchAndRender()
+        renderScripts()
     end
+end)
+
+closeDetailBtn.MouseButton1Click:Connect(function()
+    detailFrame.Visible = false
 end)
 
 copyScriptBtn.MouseButton1Click:Connect(function()
-    if selectedScript and selectedScript.script then
-        setClipboard(selectedScript.script)
-        createNotification("Script copied to clipboard!")
+    local scriptText = detailScriptBox.Text
+    setClipboard(scriptText)
+    createNotification("Script copied to clipboard!")
+end)
+
+openCreatorProfileBtn.MouseButton1Click:Connect(function()
+    -- Open creator profile in browser
+    if syn and syn.request then
+        syn.request({
+            Url = CREATOR_PROFILE_LINK,
+            Method = "GET"
+        })
     else
-        createNotification("No script selected.")
+        -- fallback
+        createNotification("Open creator profile: " .. CREATOR_PROFILE_LINK)
     end
 end)
 
-followBtn.MouseButton1Click:Connect(function()
-    -- Copy Roblox creator profile link to clipboard
-    setClipboard(CREATOR_PROFILE_LINK)
-    createNotification("Thank you for following the creator!")
-end)
-
-bugReportBtn.MouseButton1Click:Connect(function()
-    -- Open WhatsApp group chat link in browser
-    -- Note: Roblox does not allow open URLs from scripts, but this can be adapted outside Roblox
-    -- Just notify user here
-    createNotification("Please report bugs in the official WhatsApp group.")
-    -- For external tools, use:
-    -- setclipboard(BUG_REPORT_LINK)
-end)
-
--- Floating button toggle main GUI visibility
-floatingBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = true
-    floatingBtn.Visible = false
-end)
-
--- Allow close GUI by pressing ESC
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.Escape then
-            if mainFrame.Visible then
-                mainFrame.Visible = false
-                floatingBtn.Visible = true
-            end
-        end
+reportBugBtn.MouseButton1Click:Connect(function()
+    -- Open WhatsApp group (if executor supports)
+    if syn and syn.request then
+        syn.request({
+            Url = BUG_REPORT_LINK,
+            Method = "GET"
+        })
+    else
+        createNotification("Join bug report group: " .. BUG_REPORT_LINK)
     end
 end)
 
--- Initial state
-mainFrame.Visible = true
-floatingBtn.Visible = false
-
--- Initial fetch (empty search - shows latest scripts)
-fetchAndRender()
+-- Init render first page
+renderScripts()
