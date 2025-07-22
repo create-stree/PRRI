@@ -278,7 +278,7 @@ local creatorImg = Instance.new("ImageLabel")
 creatorImg.Size = UDim2.new(0, 40, 0, 40)
 creatorImg.Position = UDim2.new(0, 10, 0, 10)
 creatorImg.BackgroundTransparency = 1
-creatorImg.Image = "rbxthumb://type=AvatarHeadShot&id"154739733"&w=420&h=420"
+creatorImg.Image = "rbxthumb://type=AvatarHeadShot&id=154739733&w=420&h=420"
 creatorImg.Parent = followPanel
 
 local creatorNameLabel = Instance.new("TextLabel")
